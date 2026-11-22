@@ -1,6 +1,7 @@
 package com.sadmc2332.loyaltyboost;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 
 public class LoyaltyBoost implements ModInitializer {
 
