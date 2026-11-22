@@ -1,3 +1,4 @@
+
 package com.sadmc2332.loyaltyboost;
 
 import net.minecraft.client.gui.DrawContext;
@@ -71,7 +72,7 @@ public class LoyaltyBoostScreen extends Screen {
         int mouseY,
         float delta
     ) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        context.fill(0, 0, this.width, this.height, 0xC0101010);
 
         context.drawCenteredTextWithShadow(
             this.textRenderer,
