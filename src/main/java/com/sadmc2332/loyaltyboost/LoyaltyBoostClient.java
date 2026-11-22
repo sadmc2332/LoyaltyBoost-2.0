@@ -1,32 +1,28 @@
+
 package com.sadmc2332.loyaltyboost;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.VideoOptionsScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
 
 public class LoyaltyBoostClient implements ClientModInitializer {
+
+    private static Screen previousScreen;
 
     @Override
     public void onInitializeClient() {
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
-            if (screen instanceof VideoOptionsScreen) {
-                ButtonWidget button = ButtonWidget.builder(
-                    Text.literal("LoyaltyBoost"),
-                    clicked -> client.setScreen(
-                        new LoyaltyBoostScreen(screen)
-                    )
-                ).dimensions(
-                    width / 2 - 100,
-                    height - 52,
-                    200,
-                    20
-                ).build();
 
-                Screens.getButtons(screen).add(button);
+            if (screen instanceof VideoOptionsScreen) {
+                Screen parent = previousScreen;
+                previousScreen = screen;
+
+                client.setScreen(new LoyaltyBoostScreen(parent));
+                return;
             }
+
+            previousScreen = screen;
         });
     }
 }
