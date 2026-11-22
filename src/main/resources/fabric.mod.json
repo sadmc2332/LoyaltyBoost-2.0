@@ -4,14 +4,15 @@
   "id": "loyaltyboost",
   "version": "${version}",
   "name": "LoyaltyBoost",
-  "description": "Sodium Extra tarzinda ozel goruntu ayarlari.",
-  "authors": [
-    "Sadmc2332"
-  ],
+  "description": "Sodium Extra tarzinda ozel ayar menusu",
+  "authors": ["Sadmc2332"],
   "environment": "*",
   "entrypoints": {
     "main": [
       "com.sadmc2332.loyaltyboost.LoyaltyBoost"
+    ],
+    "client": [
+      "com.sadmc2332.loyaltyboost.LoyaltyBoostClient"
     ]
   },
   "depends": {
