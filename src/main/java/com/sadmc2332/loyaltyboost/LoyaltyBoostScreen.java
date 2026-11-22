@@ -1,4 +1,3 @@
-
 package com.sadmc2332.loyaltyboost;
 
 import net.minecraft.client.gui.DrawContext;
@@ -8,11 +7,13 @@ import net.minecraft.text.Text;
 
 public class LoyaltyBoostScreen extends Screen {
 
+    private final Screen parent;
     private String category = "Genel";
     private boolean enabled = true;
 
-    public LoyaltyBoostScreen() {
+    public LoyaltyBoostScreen(Screen parent) {
         super(Text.literal("LoyaltyBoost"));
+        this.parent = parent;
     }
 
     @Override
@@ -31,13 +32,10 @@ public class LoyaltyBoostScreen extends Screen {
             String name = categories[i];
 
             this.addDrawableChild(
-                ButtonWidget.builder(
-                    Text.literal(name),
-                    button -> {
-                        category = name;
-                        clearAndInit();
-                    }
-                ).dimensions(left, top + i * 27, 100, 22).build()
+                ButtonWidget.builder(Text.literal(name), button -> {
+                    category = name;
+                    clearAndInit();
+                }).dimensions(left, top + i * 27, 100, 22).build()
             );
         }
 
@@ -47,8 +45,7 @@ public class LoyaltyBoostScreen extends Screen {
                 button -> {
                     enabled = !enabled;
                     button.setMessage(
-                        Text.literal("Ozellik: " +
-                            (enabled ? "Acik" : "Kapali"))
+                        Text.literal("Ozellik: " + (enabled ? "Acik" : "Kapali"))
                     );
                 }
             ).dimensions(left + 115, top, 180, 22).build()
@@ -57,16 +54,23 @@ public class LoyaltyBoostScreen extends Screen {
         this.addDrawableChild(
             ButtonWidget.builder(
                 Text.literal("Geri"),
-                button -> this.close()
-            ).dimensions(this.width / 2 - 50,
-                this.height / 2 + 105, 100, 20).build()
+                button -> close()
+            ).dimensions(this.width / 2 - 50, this.height / 2 + 105, 100, 20).build()
         );
     }
 
     @Override
-    public void render(DrawContext context,
-                      int mouseX, int mouseY, float delta) {
+    public void close() {
+        this.client.setScreen(parent);
+    }
 
+    @Override
+    public void render(
+        DrawContext context,
+        int mouseX,
+        int mouseY,
+        float delta
+    ) {
         this.renderBackground(context, mouseX, mouseY, delta);
 
         context.drawCenteredTextWithShadow(
