@@ -3,41 +3,29 @@ package com.sadmc2332.loyaltyboost;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.option.SimpleOption;
-import net.minecraft.particle.ParticlesMode;
 import net.minecraft.text.Text;
 
 public class LoyaltyBoostScreen extends Screen {
 
     private final Screen parent;
+
     private String category = "Genel";
+    private boolean enabled = true;
+
     private int scrollOffset = 0;
-    private int visibleRows = 4;
-    private int listTop;
+    private int visibleRows = 1;
+
     private int rightX;
     private int rightWidth;
+    private int listTop;
 
     private final String[] categories = {
         "Genel",
         "Performans",
         "Görüntü",
         "Gelişmiş"
-    };
-
-    private final int[] viewDistances = {
-        4, 6, 8, 10, 12, 16, 20, 24, 32
-    };
-
-    private final int[] simulationDistances = {
-        2, 4, 6, 8, 10, 12, 16
-    };
-
-    private final int[] fpsValues = {
-        30, 60, 90, 120, 144, 165, 240, 260
-    };
-
-    private final double[] entityDistances = {
-        0.5, 0.75, 1.0, 1.25, 1.5, 2.0
     };
 
     public LoyaltyBoostScreen(Screen parent) {
@@ -47,20 +35,24 @@ public class LoyaltyBoostScreen extends Screen {
 
     @Override
     protected void init() {
-        int leftX = Math.max(4, width / 2 - 160);
-        int categoryWidth = Math.min(94, width / 3);
-        rightX = leftX + categoryWidth + 6;
-        rightWidth = Math.max(80, width - rightX - 4);
 
-        int top = Math.max(35, height / 2 - 78);
-        listTop = top + 4;
+        int leftX = Math.max(4, width / 2 - 160);
+        int leftWidth = 94;
+
+        rightX = leftX + leftWidth + 10;
+        rightWidth = Math.max(80, width - rightX - 8);
+
+        int top = 42;
+
+        listTop = top + 27;
 
         visibleRows = Math.max(
             1,
-            (height - listTop - 42) / 26
+            (height - listTop - 48) / 29
         );
 
         for (int i = 0; i < categories.length; i++) {
+
             String name = categories[i];
 
             addDrawableChild(
@@ -73,9 +65,9 @@ public class LoyaltyBoostScreen extends Screen {
                     }
                 ).dimensions(
                     leftX,
-                    top + i * 27,
-                    categoryWidth,
-                    22
+                    top + i * 29,
+                    leftWidth,
+                    23
                 ).build()
             );
         }
@@ -92,8 +84,8 @@ public class LoyaltyBoostScreen extends Screen {
             i < Math.min(count, scrollOffset + visibleRows);
             i++
         ) {
-            int y = listTop + (i - scrollOffset) * 26;
-            addSettingButton(i, y);
+            int y = listTop + (i - scrollOffset) * 29;
+            addSetting(i, y);
         }
 
         addDrawableChild(
@@ -110,130 +102,173 @@ public class LoyaltyBoostScreen extends Screen {
     }
 
     private int getOptionCount() {
+
         return switch (category) {
-            case "Genel" -> 3;
-            case "Performans" -> 6;
-            case "Görüntü" -> 5;
+            case "Genel" -> 4;
+            case "Performans" -> 5;
+            case "Görüntü" -> 4;
             case "Gelişmiş" -> 3;
             default -> 0;
         };
     }
 
-    private void addSettingButton(int index, int y) {
+    private void addSetting(int index, int y) {
+
         switch (category) {
 
             case "Genel" -> {
+
                 if (index == 0) {
-                    addIntegerButton(
+                    addEnabledButton(y);
+                }
+
+                if (index == 1) {
+                    addIntegerSlider(
                         "FPS sınırı",
                         client.options.getMaxFps(),
-                        fpsValues,
-                        y
+                        10, 260, 10, y
                     );
-                } else if (index == 1) {
+                }
+
+                if (index == 2) {
                     addBooleanButton(
                         "Dikey eşitleme",
                         client.options.getEnableVsync(),
                         y
                     );
-                } else if (index == 2) {
-                    addParticlesButton(y);
                 }
-            }
 
-            case "Performans" -> {
-                if (index == 0) {
+                if (index == 3) {
                     addBooleanButton(
                         "Varlık gölgeleri",
                         client.options.getEntityShadows(),
                         y
                     );
-                } else if (index == 1) {
-                    addParticlesButton(y);
-                } else if (index == 2) {
-                    addDoubleButton(
+                }
+            }
+
+            case "Performans" -> {
+
+                if (index == 0) {
+                    addIntegerSlider(
+                        "Görüş mesafesi",
+                        client.options.getViewDistance(),
+                        2, 32, 1, y
+                    );
+                }
+
+                if (index == 1) {
+                    addIntegerSlider(
+                        "Simülasyon mesafesi",
+                        client.options.getSimulationDistance(),
+                        5, 32, 1, y
+                    );
+                }
+
+                if (index == 2) {
+                    addDoubleSlider(
                         "Varlık mesafesi",
                         client.options.getEntityDistanceScaling(),
-                        entityDistances,
-                        y
+                        0.5, 5.0, 0.1, y
                     );
-                } else if (index == 3) {
-                    addIntegerButton(
-                        "FPS sınırı",
-                        client.options.getMaxFps(),
-                        fpsValues,
-                        y
-                    );
-                } else if (index == 4) {
+                }
+
+                if (index == 3) {
                     addBooleanButton(
-                        "Dikey eşitleme",
-                        client.options.getEnableVsync(),
+                        "Yaprak görünümü",
+                        client.options.getCutoutLeaves(),
                         y
                     );
-                } else if (index == 5) {
+                }
+
+                if (index == 4) {
                     addBooleanButton(
-                        "Şimşek efektlerini gizle",
-                        client.options.getHideLightningFlashes(),
+                        "Gölgelendirme",
+                        client.options.getAo(),
                         y
                     );
                 }
             }
 
             case "Görüntü" -> {
+
                 if (index == 0) {
-                    addBooleanButton(
-                        "Yaprak görünümü",
-                        client.options.getCutoutLeaves(),
-                        y
-                    );
-                } else if (index == 1) {
                     addBooleanButton(
                         "Kenar karartması",
                         client.options.getVignette(),
                         y
                     );
-                } else if (index == 2) {
+                }
+
+                if (index == 1) {
                     addBooleanButton(
                         "Geliştirilmiş şeffaflık",
                         client.options.getImprovedTransparency(),
                         y
                     );
-                } else if (index == 3) {
+                }
+
+                if (index == 2) {
                     addBooleanButton(
                         "Şimşek efektlerini gizle",
                         client.options.getHideLightningFlashes(),
                         y
                     );
-                } else if (index == 4) {
-                    addParticlesButton(y);
+                }
+
+                if (index == 3) {
+                    addBooleanButton(
+                        "Yaprak görünümü",
+                        client.options.getCutoutLeaves(),
+                        y
+                    );
                 }
             }
 
             case "Gelişmiş" -> {
+
                 if (index == 0) {
-                    addIntegerButton(
+                    addIntegerSlider(
                         "Görüş mesafesi",
                         client.options.getViewDistance(),
-                        viewDistances,
-                        y
+                        2, 32, 1, y
                     );
-                } else if (index == 1) {
-                    addIntegerButton(
+                }
+
+                if (index == 1) {
+                    addIntegerSlider(
                         "Simülasyon mesafesi",
                         client.options.getSimulationDistance(),
-                        simulationDistances,
-                        y
+                        5, 32, 1, y
                     );
-                } else if (index == 2) {
-                    addDoubleButton(
+                }
+
+                if (index == 2) {
+                    addDoubleSlider(
                         "Varlık mesafesi",
                         client.options.getEntityDistanceScaling(),
-                        entityDistances,
-                        y
+                        0.5, 5.0, 0.1, y
                     );
                 }
             }
         }
+    }
+
+    private void addEnabledButton(int y) {
+
+        addDrawableChild(
+            ButtonWidget.builder(
+                toggleText("LoyaltyBoost", enabled),
+                button -> {
+                    enabled = !enabled;
+                    button.setMessage(
+                        toggleText("LoyaltyBoost", enabled)
+                    );
+                }
+            ).dimensions(
+                rightX, y, rightWidth, 22
+            ).build()
+        );
     }
 
     private void addBooleanButton(
@@ -241,11 +276,16 @@ public class LoyaltyBoostScreen extends Screen {
         SimpleOption<Boolean> option,
         int y
     ) {
+
         addDrawableChild(
             ButtonWidget.builder(
                 toggleText(name, option.getValue()),
                 button -> {
+
                     option.setValue(!option.getValue());
+
+                    client.options.write();
+
                     button.setMessage(
                         toggleText(name, option.getValue())
                     );
@@ -256,112 +296,204 @@ public class LoyaltyBoostScreen extends Screen {
         );
     }
 
-    private void addIntegerButton(
+    private void addIntegerSlider(
         String name,
         SimpleOption<Integer> option,
-        int[] values,
+        int min,
+        int max,
+        int step,
         int y
     ) {
+
+        double progress =
+            (double) (option.getValue() - min) / (max - min);
+
         addDrawableChild(
-            ButtonWidget.builder(
-                Text.literal(name + ": " + option.getValue()),
-                button -> {
-                    int current = option.getValue();
-                    int next = values[0];
-
-                    for (int value : values) {
-                        if (value > current) {
-                            next = value;
-                            break;
-                        }
-                    }
-
-                    option.setValue(next);
-                    clearAndInit();
-                }
-            ).dimensions(
-                rightX, y, rightWidth, 22
-            ).build()
+            new IntegerSlider(
+                rightX,
+                y,
+                rightWidth,
+                22,
+                name,
+                option,
+                min,
+                max,
+                step,
+                progress
+            )
         );
     }
 
-    private void addDoubleButton(
+    private void addDoubleSlider(
         String name,
         SimpleOption<Double> option,
-        double[] values,
+        double min,
+        double max,
+        double step,
         int y
     ) {
+
+        double progress =
+            (option.getValue() - min) / (max - min);
+
         addDrawableChild(
-            ButtonWidget.builder(
-                Text.literal(
-                    name + ": " +
-                    Math.round(option.getValue() * 100) + "%"
-                ),
-                button -> {
-                    double current = option.getValue();
-                    double next = values[0];
-
-                    for (double value : values) {
-                        if (value > current + 0.001) {
-                            next = value;
-                            break;
-                        }
-                    }
-
-                    option.setValue(next);
-                    clearAndInit();
-                }
-            ).dimensions(
-                rightX, y, rightWidth, 22
-            ).build()
+            new DoubleSlider(
+                rightX,
+                y,
+                rightWidth,
+                22,
+                name,
+                option,
+                min,
+                max,
+                step,
+                progress
+            )
         );
     }
 
-    private void addParticlesButton(int y) {
-        addDrawableChild(
-            ButtonWidget.builder(
-                particlesText(),
-                button -> {
-                    ParticlesMode current =
-                        client.options.getParticles().getValue();
+    private class IntegerSlider extends SliderWidget {
 
-                    ParticlesMode next;
+        private final String name;
+        private final SimpleOption<Integer> option;
+        private final int min;
+        private final int max;
+        private final int step;
 
-                    if (current == ParticlesMode.ALL) {
-                        next = ParticlesMode.DECREASED;
-                    } else if (current == ParticlesMode.DECREASED) {
-                        next = ParticlesMode.MINIMAL;
-                    } else {
-                        next = ParticlesMode.ALL;
-                    }
+        IntegerSlider(
+            int x,
+            int y,
+            int width,
+            int height,
+            String name,
+            SimpleOption<Integer> option,
+            int min,
+            int max,
+            int step,
+            double progress
+        ) {
+            super(
+                x, y, width, height,
+                Text.literal(name),
+                Math.max(0.0, Math.min(1.0, progress))
+            );
 
-                    client.options.getParticles().setValue(next);
-                    button.setMessage(particlesText());
-                }
-            ).dimensions(
-                rightX, y, rightWidth, 22
-            ).build()
-        );
-    }
+            this.name = name;
+            this.option = option;
+            this.min = min;
+            this.max = max;
+            this.step = step;
 
-    private Text particlesText() {
-        ParticlesMode mode =
-            client.options.getParticles().getValue();
-
-        String value;
-
-        if (mode == ParticlesMode.ALL) {
-            value = "Tümü";
-        } else if (mode == ParticlesMode.DECREASED) {
-            value = "Azaltılmış";
-        } else {
-            value = "Minimum";
+            updateMessage();
         }
 
-        return Text.literal("Parçacıklar: " + value);
+        @Override
+        protected void updateMessage() {
+
+            int value = min +
+                (int) Math.round(
+                    this.value * (max - min) / step
+                ) * step;
+
+            value = Math.min(max, value);
+
+            String display = name.equals("FPS sınırı")
+                && value >= 260
+                ? "Sınırsız"
+                : String.valueOf(value);
+
+            setMessage(
+                Text.literal(name + ": " + display)
+            );
+        }
+
+        @Override
+        protected void applyValue() {
+
+            int value = min +
+                (int) Math.round(
+                    this.value * (max - min) / step
+                ) * step;
+
+            value = Math.min(max, value);
+
+            option.setValue(value);
+
+            client.options.write();
+
+            updateMessage();
+        }
+    }
+
+    private class DoubleSlider extends SliderWidget {
+
+        private final String name;
+        private final SimpleOption<Double> option;
+        private final double min;
+        private final double max;
+        private final double step;
+
+        DoubleSlider(
+            int x,
+            int y,
+            int width,
+            int height,
+            String name,
+            SimpleOption<Double> option,
+            double min,
+            double max,
+            double step,
+            double progress
+        ) {
+            super(
+                x, y, width, height,
+                Text.literal(name),
+                Math.max(0.0, Math.min(1.0, progress))
+            );
+
+            this.name = name;
+            this.option = option;
+            this.min = min;
+            this.max = max;
+            this.step = step;
+
+            updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+
+            double value =
+                min + this.value * (max - min);
+
+            value = Math.round(value / step) * step;
+
+            setMessage(
+                Text.literal(
+                    name + ": " +
+                    Math.round(value * 100) + "%"
+                )
+            );
+        }
+
+        @Override
+        protected void applyValue() {
+
+            double value =
+                min + this.value * (max - min);
+
+            value = Math.round(value / step) * step;
+
+            option.setValue(value);
+
+            client.options.write();
+
+            updateMessage();
+        }
     }
 
     private Text toggleText(String name, boolean value) {
+
         return Text.literal(
             name + ": " + (value ? "Açık" : "Kapalı")
         );
@@ -374,6 +506,7 @@ public class LoyaltyBoostScreen extends Screen {
         double horizontalAmount,
         double verticalAmount
     ) {
+
         int maxScroll = Math.max(
             0,
             getOptionCount() - visibleRows
@@ -401,6 +534,8 @@ public class LoyaltyBoostScreen extends Screen {
 
     @Override
     public void close() {
+
+        client.options.write();
         client.setScreen(parent);
     }
 
@@ -411,6 +546,7 @@ public class LoyaltyBoostScreen extends Screen {
         int mouseY,
         float delta
     ) {
+
         context.fill(
             0, 0, width, height, 0xC0101010
         );
@@ -419,7 +555,7 @@ public class LoyaltyBoostScreen extends Screen {
             textRenderer,
             title,
             width / 2,
-            12,
+            13,
             0xFFFFFF
         );
 
@@ -431,14 +567,40 @@ public class LoyaltyBoostScreen extends Screen {
             0xFFFFFF
         );
 
-        context.drawTextWithShadow(
-            textRenderer,
-            Text.literal("Kaydır: ayarları görmek için"),
-            rightX,
-            height - 40,
-            0xAAAAAA
-        );
+        int count = getOptionCount();
+
+        if (count > visibleRows) {
+
+            int trackHeight = visibleRows * 29;
+            int trackX = rightX + rightWidth - 3;
+
+            context.fill(
+                trackX,
+                listTop,
+                trackX + 3,
+                listTop + trackHeight,
+                0xFF555555
+            );
+
+            int thumbHeight = Math.max(
+                12,
+                trackHeight * visibleRows / count
+            );
+
+            int thumbY = listTop +
+                (trackHeight - thumbHeight) *
+                scrollOffset /
+                Math.max(1, count - visibleRows);
+
+            context.fill(
+                trackX,
+                thumbY,
+                trackX + 3,
+                thumbY + thumbHeight,
+                0xFFFFFFFF
+            );
+        }
 
         super.render(context, mouseX, mouseY, delta);
     }
-            }
+                }
