@@ -1,3 +1,4 @@
+
 package com.sadmc2332.loyaltyboost;
 
 import net.minecraft.client.gui.DrawContext;
@@ -12,7 +13,6 @@ public class LoyaltyBoostScreen extends Screen {
     private final Screen parent;
 
     private String category = "Genel";
-    private boolean enabled = true;
 
     private int scrollOffset = 0;
     private int visibleRows = 1;
@@ -51,9 +51,7 @@ public class LoyaltyBoostScreen extends Screen {
             (height - listTop - 48) / 29
         );
 
-        for (int i = 0; i < categories.length; i++) {
-
-            String name = categories[i];
+        for (String name : categories) {
 
             addDrawableChild(
                 ButtonWidget.builder(
@@ -65,7 +63,7 @@ public class LoyaltyBoostScreen extends Screen {
                     }
                 ).dimensions(
                     leftX,
-                    top + i * 29,
+                    top + java.util.Arrays.asList(categories).indexOf(name) * 29,
                     leftWidth,
                     23
                 ).build()
@@ -76,7 +74,7 @@ public class LoyaltyBoostScreen extends Screen {
 
         scrollOffset = Math.max(
             0,
-            Math.min(scrollOffset, count - visibleRows)
+            Math.min(scrollOffset, Math.max(0, count - visibleRows))
         );
 
         for (
@@ -258,11 +256,19 @@ public class LoyaltyBoostScreen extends Screen {
 
         addDrawableChild(
             ButtonWidget.builder(
-                toggleText("LoyaltyBoost", enabled),
+                toggleText("LoyaltyBoost", LoyaltyBoostConfig.enabled),
                 button -> {
-                    enabled = !enabled;
+
+                    LoyaltyBoostConfig.enabled =
+                        !LoyaltyBoostConfig.enabled;
+
+                    LoyaltyBoostConfig.save();
+
                     button.setMessage(
-                        toggleText("LoyaltyBoost", enabled)
+                        toggleText(
+                            "LoyaltyBoost",
+                            LoyaltyBoostConfig.enabled
+                        )
                     );
                 }
             ).dimensions(
@@ -310,16 +316,8 @@ public class LoyaltyBoostScreen extends Screen {
 
         addDrawableChild(
             new IntegerSlider(
-                rightX,
-                y,
-                rightWidth,
-                22,
-                name,
-                option,
-                min,
-                max,
-                step,
-                progress
+                rightX, y, rightWidth, 22,
+                name, option, min, max, step, progress
             )
         );
     }
@@ -338,16 +336,8 @@ public class LoyaltyBoostScreen extends Screen {
 
         addDrawableChild(
             new DoubleSlider(
-                rightX,
-                y,
-                rightWidth,
-                22,
-                name,
-                option,
-                min,
-                max,
-                step,
-                progress
+                rightX, y, rightWidth, 22,
+                name, option, min, max, step, progress
             )
         );
     }
@@ -361,15 +351,10 @@ public class LoyaltyBoostScreen extends Screen {
         private final int step;
 
         IntegerSlider(
-            int x,
-            int y,
-            int width,
-            int height,
+            int x, int y, int width, int height,
             String name,
             SimpleOption<Integer> option,
-            int min,
-            int max,
-            int step,
+            int min, int max, int step,
             double progress
         ) {
             super(
@@ -397,8 +382,8 @@ public class LoyaltyBoostScreen extends Screen {
 
             value = Math.min(max, value);
 
-            String display = name.equals("FPS sınırı")
-                && value >= 260
+            String display =
+                name.equals("FPS sınırı") && value >= 260
                 ? "Sınırsız"
                 : String.valueOf(value);
 
@@ -434,15 +419,10 @@ public class LoyaltyBoostScreen extends Screen {
         private final double step;
 
         DoubleSlider(
-            int x,
-            int y,
-            int width,
-            int height,
+            int x, int y, int width, int height,
             String name,
             SimpleOption<Double> option,
-            double min,
-            double max,
-            double step,
+            double min, double max, double step,
             double progress
         ) {
             super(
@@ -525,10 +505,8 @@ public class LoyaltyBoostScreen extends Screen {
         }
 
         return super.mouseScrolled(
-            mouseX,
-            mouseY,
-            horizontalAmount,
-            verticalAmount
+            mouseX, mouseY,
+            horizontalAmount, verticalAmount
         );
     }
 
@@ -575,10 +553,8 @@ public class LoyaltyBoostScreen extends Screen {
             int trackX = rightX + rightWidth - 3;
 
             context.fill(
-                trackX,
-                listTop,
-                trackX + 3,
-                listTop + trackHeight,
+                trackX, listTop,
+                trackX + 3, listTop + trackHeight,
                 0xFF555555
             );
 
@@ -593,14 +569,13 @@ public class LoyaltyBoostScreen extends Screen {
                 Math.max(1, count - visibleRows);
 
             context.fill(
-                trackX,
-                thumbY,
-                trackX + 3,
-                thumbY + thumbHeight,
+                trackX, thumbY,
+                trackX + 3, thumbY + thumbHeight,
                 0xFFFFFFFF
             );
         }
 
         super.render(context, mouseX, mouseY, delta);
     }
-                }
+        }
+                 
