@@ -630,5 +630,5 @@ public class LoyaltyBoostScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
     }
-                }
-                    
+                             }
+                         
