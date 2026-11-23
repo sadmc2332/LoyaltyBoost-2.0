@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.option.SimpleOption;
+import net.minecraft.particle.ParticlesMode;
 import net.minecraft.text.Text;
 
 public class LoyaltyBoostScreen extends Screen {
@@ -103,7 +104,7 @@ public class LoyaltyBoostScreen extends Screen {
 
         return switch (category) {
             case "Genel" -> 4;
-            case "Performans" -> 5;
+            case "Performans" -> 6;
             case "Görüntü" -> 4;
             case "Gelişmiş" -> 3;
             default -> 0;
@@ -186,6 +187,10 @@ public class LoyaltyBoostScreen extends Screen {
                         y
                     );
                 }
+
+                if (index == 5) {
+                    addParticlesButton(y);
+                }
             }
 
             case "Görüntü" -> {
@@ -250,6 +255,54 @@ public class LoyaltyBoostScreen extends Screen {
                 }
             }
         }
+    }
+
+    private void addParticlesButton(int y) {
+
+        SimpleOption<ParticlesMode> option =
+            client.options.getParticles();
+
+        addDrawableChild(
+            ButtonWidget.builder(
+                Text.literal(
+                    "Parçacıklar: " +
+                    particleName(option.getValue())
+                ),
+                button -> {
+
+                    ParticlesMode current = option.getValue();
+
+                    ParticlesMode next =
+                        current == ParticlesMode.ALL
+                        ? ParticlesMode.DECREASED
+                        : current == ParticlesMode.DECREASED
+                        ? ParticlesMode.MINIMAL
+                        : ParticlesMode.ALL;
+
+                    option.setValue(next);
+
+                    client.options.write();
+
+                    button.setMessage(
+                        Text.literal(
+                            "Parçacıklar: " +
+                            particleName(next)
+                        )
+                    );
+                }
+            ).dimensions(
+                rightX, y, rightWidth, 22
+            ).build()
+        );
+    }
+
+    private String particleName(ParticlesMode mode) {
+
+        return switch (mode) {
+            case ALL -> "Tam";
+            case DECREASED -> "Azaltılmış";
+            case MINIMAL -> "Minimum";
+        };
     }
 
     private void addEnabledButton(int y) {
@@ -577,5 +630,5 @@ public class LoyaltyBoostScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
     }
-        }
-                 
+                }
+                    
