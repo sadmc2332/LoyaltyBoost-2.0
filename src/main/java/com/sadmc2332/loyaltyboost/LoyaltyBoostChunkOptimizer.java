@@ -1,18 +1,20 @@
+
 package com.sadmc2332.loyaltyboost;
 
 import net.minecraft.client.MinecraftClient;
 
 public final class LoyaltyBoostChunkOptimizer {
 
-    private static final long UPDATE_INTERVAL = 1000L;
+    private static final long UPDATE_INTERVAL = 5000L;
+    private static final int MAX_CHUNKS = 24;
 
     private static long lastUpdate;
-    private static int lastChunkDistance = -1;
 
     private LoyaltyBoostChunkOptimizer() {
     }
 
     public static void update(MinecraftClient client) {
+
         if (!LoyaltyBoostConfig.enabled || client.world == null) {
             return;
         }
@@ -25,15 +27,30 @@ public final class LoyaltyBoostChunkOptimizer {
 
         lastUpdate = now;
 
-        int distance = client.options.getViewDistance().getValue();
+        int fps = client.getCurrentFps();
 
-        if (distance != lastChunkDistance) {
-            lastChunkDistance = distance;
+        if (fps <= 0) {
+            return;
+        }
 
-            System.out.println(
-                "LoyaltyBoost: Chunk mesafesi " +
-                distance + " olarak ayarlandi."
-            );
+        int targetDistance;
+
+        if (fps < 25) {
+            targetDistance = 12;
+        } else if (fps < 35) {
+            targetDistance = 16;
+        } else if (fps < 45) {
+            targetDistance = 20;
+        } else {
+            targetDistance = MAX_CHUNKS;
+        }
+
+        int currentDistance =
+            client.options.getViewDistance().getValue();
+
+        if (currentDistance != targetDistance) {
+            client.options.getViewDistance()
+                .setValue(targetDistance);
         }
     }
 }
