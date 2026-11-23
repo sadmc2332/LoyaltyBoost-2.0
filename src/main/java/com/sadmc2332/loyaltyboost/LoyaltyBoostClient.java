@@ -1,4 +1,3 @@
-
 package com.sadmc2332.loyaltyboost;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -12,6 +11,9 @@ public class LoyaltyBoostClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        LoyaltyBoostConfig.load();
+
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
 
             if (screen instanceof VideoOptionsScreen) {
